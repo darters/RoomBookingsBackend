@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @CrossOrigin
 @RestController
@@ -23,7 +25,7 @@ public class RoomController {
     @Autowired
     private GoogleCloudStorageService googleCloudStorageService;
     @PostMapping("/create")
-    public void createRoom(@RequestPart("room") RoomListing room, @RequestPart("photos") List<MultipartFile> multipartFiles) throws IOException {
+    public void createRoom(@RequestPart RoomListing room, @RequestPart("photos") List<MultipartFile> multipartFiles) throws IOException {
         List<String> photoUrls = new ArrayList<>();
         for (MultipartFile file : multipartFiles) {
             String photoUrl = googleCloudStorageService.uploadFile(file);
@@ -47,5 +49,22 @@ public class RoomController {
         System.out.println(allHotels);
         return allHotels;
     }
+    @DeleteMapping("/delete/{path:[\\d]+(?:-[\\d]+)?}")
+    public void deleteRoom(@PathVariable String path) {
+        String rangeRegex = "(\\d+)(?:-(\\d+))?";
+        Pattern pattern = Pattern.compile(rangeRegex);
+        Matcher matcher = pattern.matcher(path);
+        if (matcher.matches()) {
+            int startRoomId = Integer.parseInt(matcher.group(1));
+            String endRoomIdStr = matcher.group(2);
+            if (endRoomIdStr != null) {
+                int endRoomId = Integer.parseInt(endRoomIdStr);
+                roomRepository.deleteRoomsByRange(startRoomId, endRoomId);
+                return;
+            }
+            roomRepository.deleteById(startRoomId);
+        }
+    }
+
 }
 
