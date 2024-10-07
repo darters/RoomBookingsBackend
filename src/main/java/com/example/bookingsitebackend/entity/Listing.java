@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.awt.*;
 import java.util.List;
 
 
@@ -14,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "room_listings")
-public class RoomListing {
+public class Listing {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -28,6 +27,8 @@ public class RoomListing {
     private double pricePerDay;
     private double latitude;
     private double longitude;
-    private Point location;
+    private String address;
+    private String city;
+    private float distanceFromCenter;
 }
 

@@ -7,16 +7,10 @@ import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.UUID;
 
 @Service
@@ -44,9 +38,6 @@ public class GoogleCloudStorageService {
 
     private MultipartFile compressFile(MultipartFile inputFile) throws IOException {
         BufferedImage inputImage = ImageIO.read(inputFile.getInputStream());
-        if(inputFile == null) {
-            throw new IOException("Invalid image file");
-        }
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Thumbnails.of(inputImage)
@@ -56,7 +47,6 @@ public class GoogleCloudStorageService {
                 .toOutputStream(outputStream);
 
         byte[] compressedImageBytes = outputStream.toByteArray();
-        InputStream compressedImageStream = new ByteArrayInputStream(compressedImageBytes);
         MultipartFile compressedFile = new MultipartFile() {
             @Override
             public String getName() {
