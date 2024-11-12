@@ -1,0 +1,28 @@
+volumes:
+  postgres-data:
+    name: main-volume
+
+services:
+  booking-postgres:
+    image: postgres:17.0
+    environment:
+      POSTGRES_USER: administrator
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: booking_db
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  program:
+    image: openjdk:24-ea-20-jdk-oraclelinux9
+    build: .
+    depends_on:
+      - booking-postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://booking-postgres:5432/booking_db
+    ports:
+      - "8080:8080"
+
+
+

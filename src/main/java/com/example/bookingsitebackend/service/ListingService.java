@@ -1,6 +1,5 @@
 package com.example.bookingsitebackend.service;
 
-import com.example.bookingsitebackend.dto.ListingCreateRequestDTO;
 import com.example.bookingsitebackend.entity.Listing;
 import com.example.bookingsitebackend.factory.ListingFactory;
 import com.example.bookingsitebackend.repository.ListingRepository;
@@ -24,20 +23,20 @@ public class ListingService {
     private ListingRepository listingRepository;
     @Autowired
     private GoogleCloudStorageService googleCloudStorageService;
-    public List<Listing> getListingWithFilters(String city, Long minPrice, Long maxPrice, Long rooms) {
+
+    public List<Listing> getListingsWithFilters(String city, Long minPrice, Long maxPrice, Long rooms) {
         Specification<Listing> specification = Specification.where(ListingSpecification.getByCity(city));
-        if (minPrice != null && maxPrice != null) {
+        if (minPrice != 0 && maxPrice != 0) {
             if (minPrice >= maxPrice) {
                 throw new IllegalArgumentException("Invalid price range. minPrice cannot be greater than maxPrice");
             }
             specification = specification.and(ListingSpecification.priceRange(minPrice, maxPrice));
         }
-        if (rooms != null && rooms >= 0) {
+        if (rooms != null && rooms > 0) {
             specification = specification.and(ListingSpecification.countOfRooms(rooms));
         }
         return listingRepository.findAll(specification);
     }
-
     public ResponseEntity<String> deleteListing(String path) {
         String rangeRegex = "(\\d+)(?:-(\\d+))?";
         Pattern pattern = Pattern.compile(rangeRegex);
@@ -53,11 +52,11 @@ public class ListingService {
         }
         return new ResponseEntity<>("Something was wrong", HttpStatus.BAD_REQUEST);
     }
-    public Listing createListing(ListingCreateRequestDTO listingCreateRequestDTO) throws IOException {
+    public Listing createListing(Listing listing, List<MultipartFile> files) throws IOException {
         try {
-            Listing listing = ListingFactory.createListing(listingCreateRequestDTO.getListing().getAddress(), getPhotoUrls(listingCreateRequestDTO.getMultipartFiles()));
-            listingRepository.save(listing);
-            return listing;
+            Listing createdListing = ListingFactory.createListing(listing, getCity(listing.getAddress()), getPhotoUrls(files));
+            listingRepository.save(createdListing);
+            return createdListing;
         } catch (IOException exception) {
             throw new IOException("Error while uploading files", exception);
         } catch (Exception exception) {
@@ -71,5 +70,11 @@ public class ListingService {
             photoUrls.add(photoUrl);
         }
         return photoUrls;
+    }
+    private String getCity(String address) {
+        String[] addressWord = address.replace(",", "").split(" ");
+        String city = addressWord[addressWord.length - 2];
+        System.out.println("GOT CITY: " + city);
+        return city;
     }
 }

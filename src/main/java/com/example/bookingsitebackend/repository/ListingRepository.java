@@ -13,12 +13,9 @@ import java.util.List;
 
 @Repository
 public interface ListingRepository extends JpaRepository<Listing, Integer>, JpaSpecificationExecutor<Listing> {
-//    @Query("SELECT r FROM RoomListing r WHERE ST_Distance(r.location, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)) < :distance")
-//    List<RoomListing> findRoomListingsByNearLocation(@Param("latitude") double latitude, @Param("longitude") double longitude, @Param("distance") double distance);
     @Modifying
     @Transactional
     @Query("DELETE FROM Listing r WHERE r.id BETWEEN :startRoomId and :endRoomId")
     void deleteListingsByRange(@Param("startRoomId") int startRoomId, @Param("endRoomId") int endRoomId);
     List<Listing> findAllByCity(String city);
-//    List<Listing> findRoomListingsByCityAndPricePerDayAndRoomRatingAndNumberOfRooms(String city, int price, int rating, int rooms);
 }

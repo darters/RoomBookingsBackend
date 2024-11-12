@@ -9,5 +9,5 @@ import java.util.List;
 @Data
 public class ListingCreateRequestDTO {
     private Listing listing;
-    private List<MultipartFile> multipartFiles;
+    private List<MultipartFile> photoFiles;
 }

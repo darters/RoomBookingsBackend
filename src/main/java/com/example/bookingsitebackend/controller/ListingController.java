@@ -3,7 +3,6 @@ package com.example.bookingsitebackend.controller;
 import com.example.bookingsitebackend.dto.ListingCreateRequestDTO;
 import com.example.bookingsitebackend.dto.ListingFilterDTO;
 import com.example.bookingsitebackend.entity.Listing;
-import com.example.bookingsitebackend.factory.ListingFactory;
 import com.example.bookingsitebackend.repository.ListingRepository;
 import com.example.bookingsitebackend.service.ListingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,23 +22,30 @@ public class ListingController {
     private ListingService listingService;
     @Autowired
     private ListingRepository listingRepository;
-    @GetMapping("/filter")
-    public ResponseEntity<List<Listing>> filterListing(@RequestParam ListingFilterDTO listingDTO) {
-        List<Listing> listings = listingService.getListingWithFilters(listingDTO.getCity(), listingDTO.getMinPrice(), listingDTO.getMaxPrice(), listingDTO.getRooms());
-        return ResponseEntity.ok(listings);
-    }
+
     @PostMapping("/create")
-    public ResponseEntity<String> createRoom(@ModelAttribute ListingCreateRequestDTO createRequestDTO) throws IOException {
+    public ResponseEntity<String> createListing(@ModelAttribute ListingCreateRequestDTO createRequestDTO) throws IOException {
         try {
-            listingService.createListing(createRequestDTO);
+            listingService.createListing(createRequestDTO.getListing(), createRequestDTO.getPhotoFiles());
             return ResponseEntity.ok("Listing created successfully");
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while uploading files");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error while creating listing");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error while creating listing " + e);
         }
     }
-
+    @GetMapping("/filter")
+    public ResponseEntity<List<Listing>> filterListing(@ModelAttribute ListingFilterDTO listingFilterDTO) {
+        List<Listing> listings = listingService.getListingsWithFilters(
+                listingFilterDTO.getCity(), listingFilterDTO.getMinPrice(),
+                listingFilterDTO.getMaxPrice(), listingFilterDTO.getRooms());
+        return ResponseEntity.ok(listings);
+    }
+    @GetMapping("/get-all")
+    public ResponseEntity<List<Listing>> getAllListings() {
+        List<Listing> listings = listingRepository.findAll();
+        return ResponseEntity.ok(listings);
+    }
     @GetMapping("/getByCity/{city}")
     public ResponseEntity<List<Listing>> getListingsByCity(@PathVariable String city) {
         List<Listing> listings = listingRepository.findAllByCity(city);
@@ -55,6 +61,5 @@ public class ListingController {
     public ResponseEntity<String> deleteListings(@PathVariable String path) {
         return listingService.deleteListing(path);
     }
-
 }
 

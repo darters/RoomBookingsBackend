@@ -7,6 +7,7 @@ import lombok.ToString;
 @ToString
 public class ListingFilterDTO {
     private String city;
+    //TODO Validate
     private Long minPrice;
     private Long maxPrice;
     private Long rooms;

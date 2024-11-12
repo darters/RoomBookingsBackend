@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -12,7 +13,8 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "room_listings")
+@Table(name = "listings")
+@ToString
 public class Listing {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,8 +22,9 @@ public class Listing {
     private String title;
     private String description;
     @ElementCollection
-    @CollectionTable(name = "photo_urls", joinColumns = @JoinColumn(name = "room_id"))
-    @Column(name = "photo_url")    private List<String> photosUrl;
+    @CollectionTable(name = "photos_urls", joinColumns = @JoinColumn(name = "listings_id"))
+    @Column(name = "photos_url")
+    private List<String> photosUrl;
     private int numberOfRooms;
     private int roomRating;
     private double pricePerDay;
